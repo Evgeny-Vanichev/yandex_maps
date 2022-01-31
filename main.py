@@ -1,38 +1,24 @@
 import pygame
-import requests
 import sys
 from io import BytesIO
+from API_module import *
 
 
 def load_image():
     # Получение картинки с координатами coords
-    map_request = f"https://static-maps.yandex.ru/1.x/?ll={coords[0]},{coords[1]}&spn={zoom}," \
-                  f"{zoom}&size=500,400&l=map"
-    response = requests.get(map_request)
-    if not response:
-        print("Простите, возникла непредвиденная ошибка")
-        sys.exit()
-    return BytesIO(response.content)
-
-
-def get_coords(target):
-    coords_request = f"https://geocode-maps.yandex.ru/1.x/" \
-                     f"?apikey=40d1649f-0493-4b70-98ba-98533de7710b&format=json&geocode={target}"
-    response = requests.get(coords_request)
-    if not response:
-        print("Простите, возникла непредвиденная ошибка")
-        sys.exit()
-    return [float(x) for x in
-            response.json()["response"]["GeoObjectCollection"]["featureMember"][0][
-                "GeoObject"]["Point"]["pos"].split()]
+    map_params['ll'] = f'{long},{lat}'
+    map_params['spn'] = f'{spn},{spn}'
+    map_response = load_map(map_params=map_params)
+    return BytesIO(map_response.content)
 
 
 # Получение координат объекта target
-coords = get_coords('Москва')
-zoom = 0.3
-load_image()
+response = geocoder_request("Москва")
+long, lat = get_geo_data(response, without_spn=True)
+map_params = get_map_params(response)
+spn = 0.3 / 4
 pygame.init()
-screen = pygame.display.set_mode((500, 400))
+screen = pygame.display.set_mode((400, 400))
 screen.blit(pygame.image.load(load_image()), (0, 0))
 pygame.display.flip()
 while True:
@@ -40,4 +26,16 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            delta = spn
+            if event.key == pygame.K_DOWN:
+                lat -= delta
+            elif event.key == pygame.K_UP:
+                lat += delta
+            elif event.key == pygame.K_RIGHT:
+                long += delta * 1.85
+            elif event.key == pygame.K_LEFT:
+                long -= delta * 1.85
+            screen.blit(pygame.image.load(load_image()), (0, 0))
+            pygame.display.flip()
     pygame.time.Clock().tick(50)
