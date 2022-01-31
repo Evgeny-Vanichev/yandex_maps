@@ -1,7 +1,7 @@
-import os
 import pygame
 import requests
 import sys
+from io import BytesIO
 
 
 def load_image():
@@ -12,8 +12,7 @@ def load_image():
     if not response:
         print("Простите, возникла непредвиденная ошибка")
         sys.exit()
-    with open(map_file, 'wb') as file:
-        file.write(response.content)
+    return BytesIO(response.content)
 
 
 def get_coords(target):
@@ -30,17 +29,15 @@ def get_coords(target):
 
 # Получение координат объекта target
 coords = get_coords('Москва')
-map_file = "map.png"
 zoom = 0.3
 load_image()
 pygame.init()
 screen = pygame.display.set_mode((500, 400))
-screen.blit(pygame.image.load(map_file), (0, 0))
+screen.blit(pygame.image.load(load_image()), (0, 0))
 pygame.display.flip()
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
-            os.remove(map_file)
             sys.exit()
     pygame.time.Clock().tick(50)
