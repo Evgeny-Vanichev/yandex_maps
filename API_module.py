@@ -7,6 +7,7 @@ def get_map_params(response):
         "ll": f'{toponym_longitude},{toponym_latitude}',
         "spn": f'{width},{height}',
         "l": "map",
+        "pt": f'{toponym_longitude},{toponym_latitude},pm2rdm',
         "size": '400,400'
     }
 
