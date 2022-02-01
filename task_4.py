@@ -67,6 +67,7 @@ while running:
                 if delta_x > 0.001 and delta_y > 0.001:
                     delta_x /= 2
                     delta_y /= 2
+
             screen.blit(pygame.image.load(geocode_request(delta_x, delta_y, l)), (200, 50))
         if event.type == pygame.MOUSEBUTTONDOWN:
             if 110 <= event.pos[0] <= 160 and 165 <= event.pos[1] <= 215:
